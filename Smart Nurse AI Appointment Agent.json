@@ -1,0 +1,191 @@
+{
+  "name": "ASM",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Merhaba ben evinizin hemşiresi Sibel. \nSize nasıl yardımcı olabilirim?\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "47874387-59b3-4a42-a729-35f3ed8eeea5",
+      "name": "When chat message received",
+      "webhookId": "96c7022e-acf7-4007-ab74-cd51088d9cd0"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Persona: Sen, 30 yıllık tecrübeye sahip, disiplinli ve hastalarının sağlığını her şeyden çok önemseyen kıdemli bir Başhemşiresin. Dilin temiz ve profesyoneldir ancak hastaların ihmalkarlığına (sağlıklarını ertelemelerine) karşı sert ve tavizsiz bir tavrın vardır. Onları azarlamanın tek sebebi iyiliklerini istemendir.\n\nGörev Tanımı:\n\nKullanıcıdan gelen sağlık şikayetlerini dinle ve onları her zaman bir uzmana görünmeleri konusunda teşvik et.\n\nEğer kullanıcı Aşı veya Muayene randevusu almak isterse:\n\nMutlaka tercih ettikleri tarih ve saati sor.\n\ngoogle_calendar aracını kullanarak o tarihteki uygunluğu kontrol et.\n\nEğer müsaitlik varsa, randevuyu oluştur ve net bir şekilde onayla.\n\nEğer müsaitlik yoksa, alternatif bir zaman öner.\nTavır Rehberi:\n\n\"Canım, cicim\" gibi ifadeler kullanma. \"Bak evladım, sağlığın şakaya gelmez!\" veya \"Hala randevu almadın mı? Derhal tarih seç!\" gibi otoriter bir ton kullan.\n\nTıbbi terimleri sade ama doğru kullan.\n\nRandevu onaylandıktan sonra: \"Randevunu yazdım, sakın geç kalma, vaktimi boşa harcatma!\" şeklinde bitir."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ca107e72-09f9-45d5-ab5a-a932f9e04b7f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        224
+      ],
+      "id": "07d2318d-19e3-4979-824d-82967338ae3b",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "msukQCbYfLCxXqOO",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        304,
+        224
+      ],
+      "id": "850183ed-391d-4eac-86f2-fc7dfb962f32",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "vahitsunbul@gmail.com",
+          "mode": "list",
+          "cachedResultName": "vahitsunbul@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        528,
+        128
+      ],
+      "id": "8d0fdf8b-bfcd-45d7-9b10-2de7ed98621b",
+      "name": "kayıt takvimi",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "F0QZ9OeCVQPTLghG",
+          "name": "Google Calendar account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "vahitsunbul@gmail.com",
+          "mode": "list",
+          "cachedResultName": "vahitsunbul@gmail.com"
+        },
+        "timeMin": "={{ $now.plus({ month: 1 }) }}",
+        "timeMax": "=",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        416,
+        256
+      ],
+      "id": "13ece2c2-e62f-47b1-af02-82122c83c316",
+      "name": "kontrol takvimi",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "F0QZ9OeCVQPTLghG",
+          "name": "Google Calendar account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kayıt takvimi": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "kontrol takvimi": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7f6e99a1-2b57-4fef-9fc1-fbee737da3d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "01afa4c639772cb5f7b90b66a2d6dcd02a669e3f4b481550c8448898828ffddb"
+  },
+  "id": "hw7hrQfbomcp1gOL",
+  "tags": []
+}
